@@ -6,7 +6,7 @@ This project's main purpose is to find a practical real-life problem, research i
 
 ## Problem
 
-The problem I've chosen for this project is a very common one and very quite simple but can be particularly annoying. I'm talking about going to a restaurant of cafe bar and waiting for a waiter to make your order. I personally have experienced this problem in restaurants during summer, but this can be translated to any type of service based catering facility.
+The problem I've chosen for this project is a very common one and quite simple but can be particularly annoying. I'm talking about going to a restaurant of cafe bar and waiting for a waiter to make your order. I personally have experienced this problem in restaurants during summer, but this can be translated to any type of service based catering facility.
 
 Few possible solutions come to mind, but none are really economic or profitable.
 
