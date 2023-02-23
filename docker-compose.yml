@@ -1,0 +1,25 @@
+version: "3"
+services:
+    menu_items:
+        container_name: menu_items_api
+        build: ./menu_items
+        ports:
+            - "5000:5000"
+        volumes:
+            - ./menu_items:/usr/src/app
+        depends_on:
+            - menu_items_db
+        restart: always
+        environment:
+            DB_URI: "postgresql://root:eatn@menu_items_db:5432/menu_items"
+
+    menu_items_db:
+        container_name: menu_items_db
+        image: postgres
+        volumes:
+            - ./db_volumes/menu_items/:/var/lib/postgresql/data
+        restart: always
+        environment:
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: eatn
+            POSTGRES_DB: menu_items

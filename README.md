@@ -22,3 +22,7 @@ My proposal for the solution is a modern one, it is to digitize the whole custom
 ## Tech stack
 
 This project aims to be as relevant as maintainable as possible so in the future it can be easily improved and extended without changing much of the codebase. Taking that philosophy into consideration, several decisions have been made in terms of chosen technologies. For the backend, NodeJS was chosen because of its abstract simplicity and development speed. Frontend framework is to be decided on due to uncertainty which Javascript based frontend framework would suit best. For the infrastructure I decided to go with Docker because it containerizes applications very well and many tools are built around Docker containers. In combination with docker, Redis in-memory database would most probably come in play because it is needed to store which people are seated at which desk at any given time and something disposable like redis would greatly benefit the project.
+
+## First user story
+
+As a customer, I want to interact with the menu.
