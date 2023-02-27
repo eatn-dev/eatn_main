@@ -1,6 +1,6 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes } = require("sequelieze")
 
-const sequelize = require("../sequelizeConnection");
+const sequelize = require("../sequelizeConnection")
 
 const MenuItem = sequelize.define("MenuItem", {
     id: {

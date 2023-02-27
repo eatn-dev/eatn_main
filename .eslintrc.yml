@@ -1,0 +1,70 @@
+env:
+  browser: true
+  commonjs: true
+  es2021: true
+  node: true
+extends: eslint:recommended
+overrides: []
+parserOptions:
+  ecmaVersion: latest
+ignorePatterns: ["**/models/index.js"]
+rules:
+  indent:
+    - error
+    - 4
+  linebreak-style:
+    - error
+    - unix
+  quotes:
+    - error
+    - double
+  semi:
+    - error
+    - never
+  no-await-in-loop: warn
+  no-duplicate-imports: error
+  no-self-compare: error
+  no-template-curly-in-string: error
+  no-unreachable-loop: error
+
+  no-use-before-define: error
+  block-scoped-var: warn
+  camelcase: warn
+  complexity:
+    - warn
+    - 5
+  default-param-last: error
+  eqeqeq: error
+  no-eval: error
+  no-negated-condition: warn
+  func-style:
+    - warn
+    - declaration
+    - allowArrowFunctions: true
+  max-depth:
+    - warn
+    - 5
+  max-nested-callbacks:
+    - warn
+    - 5
+  max-params:
+    - warn
+    - 8
+  yoda: error
+  spaced-comment: warn
+  eol-last:
+    - warn
+    - always
+  prefer-arrow-callback: warn
+  prefer-const: warn
+  comma-spacing:
+    - warn
+    - before: false
+    - after: true
+  comma-dangle: 
+    - warn
+    - always-multiline
+  block-spacing:
+    - warn
+  arrow-spacing:
+    - warn
