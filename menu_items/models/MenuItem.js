@@ -1,4 +1,4 @@
-const { DataTypes } = require("sequelieze")
+const { DataTypes } = require("sequelize")
 
 const sequelize = require("../sequelizeConnection")
 

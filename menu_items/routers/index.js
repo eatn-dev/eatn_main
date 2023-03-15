@@ -1,7 +1,7 @@
-const router = require('express').Router()
+const router = require("express").Router()
 const MenuItem = require("../models/MenuItem")
 const Validator = require("validatorjs")
-const { createItemValidator, getItemByIdValidator, updateItemValidator, deleteItemValidator } = require("./validators");
+const { createItemValidator, getItemByIdValidator, updateItemValidator, deleteItemValidator } = require("./validators")
 
 // swagger MenuItem schema
 /**
@@ -76,7 +76,7 @@ const { createItemValidator, getItemByIdValidator, updateItemValidator, deleteIt
 router.post("/", async (req, res) => {
     const { name, price, quantity } = req.body
 
-    let validation = new Validator(
+    const validation = new Validator(
         { name, price, quantity },
         createItemValidator
     )
@@ -144,7 +144,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     const id = req.params.id
 
-    let validation = new Validator(
+    const validation = new Validator(
         { id },
         getItemByIdValidator
     )
@@ -164,7 +164,7 @@ router.get("/:id", async (req, res) => {
     return res.send({ data: item })
 })
 
-//update menu item
+// update menu item
 /**
  * @swagger
  * /items/{id}:
@@ -199,7 +199,7 @@ router.put("/:id", async (req, res) => {
     const id = req.params.id
     const { name, price, quantity } = req.body
 
-    let validation = new Validator(
+    const validation = new Validator(
         { id, name, price, quantity },
         updateItemValidator
     )
@@ -218,7 +218,7 @@ router.put("/:id", async (req, res) => {
     if (returning[0] !== 1)
         return res.sendStatus(404)
 
-    return res.send({ data: `Menu item successfully updated.` })
+    return res.send({ data: "Menu item successfully updated." })
 
 })
 
@@ -248,7 +248,7 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
     const id = req.params.id
 
-    let validation = new Validator(
+    const validation = new Validator(
         { id },
         deleteItemValidator
     )
@@ -265,7 +265,7 @@ router.delete("/:id", async (req, res) => {
     if (returning !== 1)
         return res.sendStatus(404)
 
-    return res.send({ data: `Menu item successfully deleted.` })
+    return res.send({ data: "Menu item successfully deleted." })
 })
 
 module.exports = router

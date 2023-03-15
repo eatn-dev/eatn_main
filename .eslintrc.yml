@@ -59,11 +59,6 @@ rules:
   prefer-const: warn
   comma-spacing:
     - warn
-    - before: false
-    - after: true
-  comma-dangle: 
-    - warn
-    - always-multiline
   block-spacing:
     - warn
   arrow-spacing:

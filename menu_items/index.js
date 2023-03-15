@@ -1,7 +1,8 @@
-const express = require('express')
-const morgan = require('morgan');
+const express = require("express")
+const morgan = require("morgan")
 const swaggerUI = require("swagger-ui-express")
 const swaggerJsDoc = require("swagger-jsdoc")
+// eslint-disable-next-line no-unused-vars
 const cors = require("cors")
 const sequelize = require("./sequelizeConnection")
 const router = require("./routers")
