@@ -20,18 +20,6 @@
     {/if}
 {/if}
 
-{#if !!history.state}
-    {#if history.state.type === "success"}
-        <h1 style="color: chartreuse">
-            {history.state.message}
-        </h1>
-    {:else}
-        <h1 style="color: crimson">
-            {history.state.message}
-        </h1>
-    {/if}
-{/if}
-
 <a href="{$page.url}/new">
     <input type="button" value="Create new menu item"/>
 </a>

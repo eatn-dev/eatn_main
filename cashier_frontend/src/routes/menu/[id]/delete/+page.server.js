@@ -1,9 +1,10 @@
 import { error } from "@sveltejs/kit"
 import { redirect } from "sveltekit-flash-message/server"
+import { GATEWAY_URL } from "$env/static/private"
 
 /** @type {import("./$types").PageLoad} */
 export async function load(event){
-        const response = await event.fetch(`http://menu_items_api:5000/items/${event.params.id}`,
+        const response = await event.fetch(`${GATEWAY_URL}/items/${event.params.id}`,
     {
         method: "DELETE"
     })

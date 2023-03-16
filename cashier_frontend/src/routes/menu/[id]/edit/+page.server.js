@@ -1,9 +1,10 @@
 import { error } from "@sveltejs/kit"
 import { redirect } from "sveltekit-flash-message/server"
+import { GATEWAY_URL } from "$env/static/private"
 
 /** @type {import("./$types").PageLoad} */
 export async function load({ fetch, params }){
-    const response = await fetch(`http://menu_items_api:5000/items/${params.id}`)
+    const response = await fetch(`${GATEWAY_URL}/items/${params.id}`)
 
     const body = await response.json()
 
@@ -20,7 +21,7 @@ export const actions = {
 
         // check if menu item exists before doing anything
 
-        let response = await fetch(`http://menu_items_api:5000/items/${event.params.id}`)
+        let response = await fetch(`${GATEWAY_URL}/items/${event.params.id}`)
 
         if(!response.ok){
             throw error(response.status)
@@ -31,7 +32,7 @@ export const actions = {
         // cast price to numeric because form sends it as string
         data.price = parseFloat(data.price)
 
-        response = await event.fetch(`http://menu_items_api:5000/items/${event.params.id}`,
+        response = await event.fetch(`${GATEWAY_URL}/items/${event.params.id}`,
         {
             method: "PUT",
             headers: {
