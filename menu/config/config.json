@@ -2,8 +2,8 @@
   "development": {
     "username": "root",
     "password": "eatn",
-    "database": "menu_items",
-    "host": "menu_items_db",
+    "database": "menu",
+    "host": "menu_db",
     "dialect": "postgres"
   },
   "test": {
@@ -16,8 +16,8 @@
   "production": {
     "username": "root",
     "password": "eatn",
-    "database": "menu_items",
-    "host": "menu_items_db",
+    "database": "menu",
+    "host": "menu_db",
     "dialect": "postgres"
   }
 }

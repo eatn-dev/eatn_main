@@ -1,29 +1,29 @@
 version: "3"
 services:
-    menu_items:
-        container_name: menu_items_api
-        build: ./menu_items
+    menu:
+        container_name: menu_api
+        build: ./menu
         ports:
             - "5000:5000"
         volumes:
-            - ./menu_items:/usr/src/app
+            - ./menu:/usr/src/app
             - /usr/src/app/node_modules
         depends_on:
-            - menu_items_db
+            - menu_db
         restart: always
         environment:
-            DB_URI: "postgresql://root:eatn@menu_items_db:5432/menu_items"
+            DB_URI: "postgresql://root:eatn@menu_db:5432/menu"
 
-    menu_items_db:
-        container_name: menu_items_db
+    menu_db:
+        container_name: menu_db
         image: postgres
         volumes:
-            - ./db_volumes/menu_items/:/var/lib/postgresql/data
+            - ./db_volumes/menu/:/var/lib/postgresql/data
         restart: always
         environment:
             POSTGRES_USER: root
             POSTGRES_PASSWORD: eatn
-            POSTGRES_DB: menu_items
+            POSTGRES_DB: menu
     
     cashier_frontend:
         container_name: cashier_frontend
@@ -35,5 +35,5 @@ services:
             - /usr/src/app/node_modules
         depends_on:
             # - api_gateway
-            - menu_items
+            - menu
         restart: always

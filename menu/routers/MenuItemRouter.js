@@ -1,6 +1,8 @@
-const router = require("express").Router()
-const MenuItem = require("../models/MenuItem")
 const Validator = require("validatorjs")
+const router = require("express").Router()
+const sequelize = require("sequelize")
+const parseOData = require("odata-sequelize")
+const MenuItem = require("../models/MenuItem")
 const { createItemValidator, getItemByIdValidator, updateItemValidator, deleteItemValidator } = require("./validators")
 
 // swagger MenuItem schema
@@ -14,6 +16,7 @@ const { createItemValidator, getItemByIdValidator, updateItemValidator, deleteIt
  *         - name
  *         - price
  *         - quantity
+ *         - description
  *       properties:
  *         id:
  *           type: integer
@@ -28,6 +31,9 @@ const { createItemValidator, getItemByIdValidator, updateItemValidator, deleteIt
  *         quantity:
  *           type: string
  *           description: Menu item quantity
+ *         description:
+ *           type: string
+ *           description: Menu item description
  *         createdAt:
  *           type: string
  *           description: ISO datetime of when menu item was created
@@ -39,6 +45,7 @@ const { createItemValidator, getItemByIdValidator, updateItemValidator, deleteIt
  *         name: Pellegrino sparkling water
  *         price: 3.99
  *         quantity: 2.0L
+ *         description: Unflavored Pellegrino sparkling water in glass bottle 
  *         createdAt: 2023-02-21T12:00:00.000Z
  *         updatedAt: 2023-02-23T15:30:00.000Z
  */
@@ -74,10 +81,10 @@ const { createItemValidator, getItemByIdValidator, updateItemValidator, deleteIt
  *         description: Bad request body
  */
 router.post("/", async (req, res) => {
-    const { name, price, quantity } = req.body
+    const { name, price, quantity, description } = req.body
 
     const validation = new Validator(
-        { name, price, quantity },
+        { name, price, quantity, description },
         createItemValidator
     )
 
@@ -87,7 +94,8 @@ router.post("/", async (req, res) => {
     const item = await MenuItem.create({
         name: name,
         price: price,
-        quantity: quantity
+        quantity: quantity,
+        description: description
     })
 
     return res.send({ data: `Item successfully created with id ${item.id}` })
@@ -101,6 +109,13 @@ router.post("/", async (req, res) => {
  *   get:
  *     summary: Returns the list of all menu items
  *     tags: [Menu items]
+ *     parameters:
+ *     - in: path
+ *       name: seach query
+ *       schema:
+ *         type: string
+ *       required: false
+ *       description: Search query string for filtering, ordering and pagination (https://github.com/Vicnovais/odata-sequelize)
  *     responses:
  *       200:
  *         description: The list of all menu items
@@ -111,10 +126,21 @@ router.post("/", async (req, res) => {
  *               items:
  *                 $ref: '#/components/schemas/MenuItem'
  */
-router.get("/", async (req, res) => {
-    const items = await MenuItem.findAll()
+router.get("/:searchQuery?", async (req, res) => {    
+    try{
+        var query = req.params.searchQuery ? parseOData(
+            req.params.searchQuery,
+            sequelize
+        ) : {}
 
-    return res.send({ data: items })
+        const items = await MenuItem.findAndCountAll(query)
+        
+        return res.send({ data: items })
+    }
+    catch(err){
+        console.log(err)
+        return res.send(400)
+    }
 })
 
 // get menu item by id
@@ -197,17 +223,17 @@ router.get("/:id", async (req, res) => {
  */
 router.put("/:id", async (req, res) => {
     const id = req.params.id
-    const { name, price, quantity } = req.body
+    const { name, price, quantity, description } = req.body
 
     const validation = new Validator(
-        { id, name, price, quantity },
+        { id, name, price, quantity, description },
         updateItemValidator
     )
 
     if (validation.fails())
         return res.status(400).send({ data: validation.errors })
 
-    const returning = await MenuItem.update({ name: name, price: price, quantity: quantity },
+    const returning = await MenuItem.update({ name: name, price: price, quantity: quantity, description: description },
         {
             where: {
                 id: id
