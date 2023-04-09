@@ -36,6 +36,9 @@ module.exports = (sequelize, DataTypes) => {
             as: "tags",
             foreignKey: "tag_id"
         })
+        MenuItem.belongsTo(models.Subcategory, {
+            foreignKey:"subcategory_id"
+        })
     }
     
     return MenuItem
