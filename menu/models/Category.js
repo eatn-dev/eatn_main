@@ -8,16 +8,24 @@ module.exports = (sequelize, DataTypes) => {
         },
         name: {
             type: DataTypes.STRING(255),
-            allowNull: false
+            allowNull: false,
+            unique: true
         }
     }, {
         underscored: true,
         tableName: "categories"
     })
-
+    
     Category.associate = (models) => {
         Category.hasMany(models.Subcategory, {
-            foreignKey: "category_id"
+            foreignKey: {
+                allowNull: false,
+                // this foreign key field will be underscored in db
+                // because of model option `underscored: true`, 
+                // but it won't be underscored in code
+                name: "categoryId"
+            },
+            as: "subcategories"
         })
     }
 

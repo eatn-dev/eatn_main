@@ -1,6 +1,7 @@
 const fs = require("fs")
 const path = require("path")
 const { Sequelize, DataTypes } = require("sequelize")
+// const { Sequelize } = require("sequelize")
 
 const sequelize = new Sequelize(process.env.DB_URI, {
     logging: false
@@ -15,6 +16,7 @@ fs.readdirSync(models)
     })
     .forEach((file) => {
         var model = require(path.join(models, file))(sequelize, DataTypes)
+        // var model = require(path.join(models, file))
         db[model.name] = model
     })
 
@@ -24,4 +26,7 @@ Object.keys(db).forEach((modelName) => {
     }
 })
 
-module.exports = sequelize
+db.sequelize = sequelize
+db.Sequelize = Sequelize
+
+module.exports = db

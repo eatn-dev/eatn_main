@@ -32,7 +32,7 @@ rules:
   camelcase: warn
   complexity:
     - warn
-    - 5
+    - 8
   default-param-last: error
   eqeqeq: error
   no-eval: error

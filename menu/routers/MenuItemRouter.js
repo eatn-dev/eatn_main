@@ -1,172 +1,99 @@
 const Validator = require("validatorjs")
 const router = require("express").Router()
-const sequelize = require("sequelize")
-const parseOData = require("odata-sequelize")
-const MenuItem = require("../models/MenuItem")
-const { createItemValidator, getItemByIdValidator, updateItemValidator, deleteItemValidator } = require("./validators")
+const db = require("../sequelizeConnection")
+const { createItemValidator, getItemByIdValidator, updateItemValidator, deleteItemValidator, assignTagToItemValidator } = require("./validators")
 
-// swagger MenuItem schema
-/**
- * @swagger
- * components:
- *   schemas:
- *     MenuItem:
- *       type: object
- *       required:
- *         - name
- *         - price
- *         - quantity
- *         - description
- *       properties:
- *         id:
- *           type: integer
- *           description: Auto generated id of menu item
- *         name:
- *           type: string
- *           description: Menu item name
- *         price:
- *           type: number
- *           multipleOf: 0.01
- *           description: Menu item price
- *         quantity:
- *           type: string
- *           description: Menu item quantity
- *         description:
- *           type: string
- *           description: Menu item description
- *         createdAt:
- *           type: string
- *           description: ISO datetime of when menu item was created
- *         updatedAt:
- *           type: string
- *           description: ISO datetime of when menu item was last updated
- *       example:
- *         id: 1
- *         name: Pellegrino sparkling water
- *         price: 3.99
- *         quantity: 2.0L
- *         description: Unflavored Pellegrino sparkling water in glass bottle 
- *         createdAt: 2023-02-21T12:00:00.000Z
- *         updatedAt: 2023-02-23T15:30:00.000Z
- */
-
-// route collection tag
-/**
- * @swagger
- * tags:
- *   name: Menu items
- *   description: Menu items API route collection
- */
 
 // create new menu item
-/**
- * @swagger
- * /items:
- *   post:
- *     summary: Create new menu item
- *     tags: [Menu items]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/MenuItem'
- *     responses:
- *       200:
- *         description: New menu item created successfully
- *         content:
- *           application/json:
- *             data: Item successfully created with id 1.
- *       400:
- *         description: Bad request body
- */
 router.post("/", async (req, res) => {
-    const { name, price, quantity, description } = req.body
+    const { name, price, quantity, description, subcategoryId } = req.body
 
     const validation = new Validator(
-        { name, price, quantity, description },
+        { name, price, quantity, description, subcategoryId },
         createItemValidator
     )
 
     if (validation.fails())
         return res.status(400).send({ data: validation.errors })
 
-    const item = await MenuItem.create({
-        name: name,
-        price: price,
-        quantity: quantity,
-        description: description
-    })
+    // TODO: ask leon if i should have 1 try-catch per query or 1 try-catch per route
 
-    return res.send({ data: `Item successfully created with id ${item.id}` })
+    let subcategory
+    try{
+        if (subcategoryId){
+            subcategory = await db.Subcategory.findOne({
+                where: {
+                    id: subcategoryId
+                }
+            })
+    
+            if (!subcategory)
+                return res.status(404).json({ data: "Subcategory with provided id does not exist." })
+        }
+    } catch (err) {
+        console.log(err)
+        return res.sendStatus(500)
+    }
+
+    let item
+    try {
+        item = await db.MenuItem.create({
+            name: name,
+            price: price,
+            quantity: quantity,
+            description: description,
+            subcategoryId: subcategoryId
+        })
+    } catch (err) {
+        if (err.name === "SequelizeUniqueConstraintError")
+            return res.status(409).json({ data: "That name is already in use." })
+
+        console.log(err)
+        return res.sendStatus(500)
+    }
+
+
+    return res.json({ data: `Item successfully created with id ${item.id}` })
 
 })
 
 // get all menu items
-/**
- * @swagger
- * /items:
- *   get:
- *     summary: Returns the list of all menu items
- *     tags: [Menu items]
- *     parameters:
- *     - in: path
- *       name: seach query
- *       schema:
- *         type: string
- *       required: false
- *       description: Search query string for filtering, ordering and pagination (https://github.com/Vicnovais/odata-sequelize)
- *     responses:
- *       200:
- *         description: The list of all menu items
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/MenuItem'
- */
-router.get("/:searchQuery?", async (req, res) => {    
+router.get("/", async (req, res) => {   
+ 
     try{
-        var query = req.params.searchQuery ? parseOData(
-            req.params.searchQuery,
-            sequelize
-        ) : {}
+        const items = await db.MenuItem.findAll({
+            attributes: {
+                exclude: ["subcategoryId"]
+            },
+            include: [
+                {
+                    model: db.Tag,
+                    as: "tags"
+                },
+                {
+                    model: db.Subcategory,
+                    as: "subcategory",
+                    attributes: {
+                        exclude: ["categoryId"]
+                    },
+                    include : [
+                        {
+                            model: db.Category,
+                            as: "category"
+                        }
+                    ]
+                }
+            ]
+        })
 
-        const items = await MenuItem.findAndCountAll(query)
-        
-        return res.send({ data: items })
-    }
-    catch(err){
+        return res.json({ data: items })
+    } catch(err){
         console.log(err)
-        return res.send(400)
+        return res.sendStatus(400)
     }
 })
 
 // get menu item by id
-/**
- * @swagger
- * /items/{id}:
- *   get:
- *     summary: Return menu item with corresponding id
- *     tags: [Menu items]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: Menu item id
- *     responses:
- *       200:
- *         description: Menu item with corresponding id
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/MenuItem'
- *       404:
- *         description: No menu item found
- */
 router.get("/:id", async (req, res) => {
     const id = req.params.id
 
@@ -178,99 +105,107 @@ router.get("/:id", async (req, res) => {
     if (validation.fails())
         return res.status(400).send({ data: validation.errors })
 
-    const item = await MenuItem.findOne({
-        where: {
-            id: id
-        }
-    })
+    let item
+    try {
+        item = await db.MenuItem.findOne({
+            where: {
+                id: id
+            },
+            attributes: {
+                exclude: ["subcategoryId"]
+            },
+            include: [
+                {
+                    model: db.Tag,
+                    as: "tags",
+                },
+                {
+                    model: db.Subcategory,
+                    as: "subcategory",
+                    attributes: {
+                        exclude: ["categoryId"]
+                    },
+                    include : [
+                        {
+                            model: db.Category,
+                            as: "category"
+                        }
+                    ]
+                }
+            ]
+        })
+    } catch (err) {
+        console.log(err)
+        return res.sendStatus(500)
+    }
 
     if (!item)
         return res.sendStatus(404)
 
-    return res.send({ data: item })
+    return res.json({ data: item })
 })
 
 // update menu item
-/**
- * @swagger
- * /items/{id}:
- *   put:
- *     summary: Update menu item with corresponding id
- *     tags: [Menu items]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: Menu item id
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/MenuItem'
- *     responses:
- *       200:
- *         description: Menu item updated successfully
- *         content:
- *           application/json:
- *             data: Item successfully created with id 1.
- *       400:
- *         description: Bad request body
- *       404:
- *         description: No item found
- */
 router.put("/:id", async (req, res) => {
     const id = req.params.id
-    const { name, price, quantity, description } = req.body
+    const { name, price, quantity, description, subcategoryId } = req.body
 
     const validation = new Validator(
-        { id, name, price, quantity, description },
+        { id, name, price, quantity, description, subcategoryId },
         updateItemValidator
     )
 
     if (validation.fails())
         return res.status(400).send({ data: validation.errors })
+    
+    let subcategory
+    try{
+        if (subcategoryId){
+            subcategory = await db.Subcategory.findOne({
+                where: {
+                    id: subcategoryId
+                }
+            })
+    
+            if (!subcategory)
+                return res.status(404).json({ data: "Subcategory with provided id does not exist." })
+        }
+    } catch (err) {
+        console.log(err)
+        return res.sendStatus(500)
+    }
 
-    const returning = await MenuItem.update({ name: name, price: price, quantity: quantity, description: description },
-        {
-            where: {
-                id: id
+    let returning
+    try {
+        returning = await db.MenuItem.update(
+            {
+                name: name,
+                price: price,
+                quantity: quantity,
+                description: description,
+                subcategoryId: subcategoryId
             },
-            returning: true
-        })
+            {
+                where: {
+                    id: id
+                },
+                returning: true
+            })
+    } catch (err) {
+        if (err.name === "SequelizeUniqueConstraintError")
+            return res.status(409).json({ data: "That name is already in use." })
+            
+        console.log(err)
+        return res.sendStatus(500)
+    }
 
     if (returning[0] !== 1)
         return res.sendStatus(404)
 
-    return res.send({ data: "Menu item successfully updated." })
-
+    return res.json({ data: "Menu item successfully updated." })
 })
 
 // delete menu item
-/**
- * @swagger
- * /items/{id}:
- *   delete:
- *     summary: Delete menu item with corresponding id
- *     tags: [Menu items]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: Menu item id
- *     responses:
- *       200:
- *         description: Menu item with corresponding id was successfully deleted
- *         content:
- *           application/json:
- *             data: Menu item successfully deleted.
- *       404:
- *         description: No menu item found
- */
 router.delete("/:id", async (req, res) => {
     const id = req.params.id
 
@@ -282,16 +217,124 @@ router.delete("/:id", async (req, res) => {
     if (validation.fails())
         return res.status(400).send({ data: validation.errors })
 
-    const returning = await MenuItem.destroy({
-        where: {
-            id: id
-        }
-    })
+    let returning
+    try {
+        returning = await db.MenuItem.destroy({
+            where: {
+                id: id
+            }
+        })
+    } catch (err) {
+        console.log(err)
+        return res.sendStatus(500)
+    }
 
     if (returning !== 1)
         return res.sendStatus(404)
 
-    return res.send({ data: "Menu item successfully deleted." })
+    return res.json({ data: "Menu item successfully deleted." })
+})
+
+// assign tag to menu item
+router.post("/:menuItemId/tags", async (req, res) => {
+    const tagId = req.body.tagId
+    const menuItemId = req.params.menuItemId
+
+    const validation = new Validator(
+        {
+            tagId,
+            menuItemId
+        },
+        assignTagToItemValidator
+    )
+
+    if (validation.fails())
+        return res.status(400).send({ data: validation.errors })
+
+    // TODO: ask leon if this try-catch coverage is okay
+    try {
+        const tag = await db.Tag.findOne({
+            where: {
+                id: tagId
+            }
+        })
+    
+        if (!tag)
+            return res.sendStatus(404)
+    
+        const menuItem = await db.MenuItem.findOne({
+            where: {
+                id: menuItemId
+            }
+        })
+    
+        if (!menuItem)
+            return res.sendStatus(404)
+    
+        // check if tag is already assigned
+        const tagAlreadyAssigned = await menuItem.hasTag(tag)
+    
+        if (tagAlreadyAssigned){
+            return res.status(409).json({ data: `Tag id ${tagId} is already assigned to this menu item.`})
+        }
+        
+        await menuItem.addTag(tag)
+    } catch (err) {
+        console.log(err)
+        return res.sendStatus(500)
+    }
+
+    return res.json({ data: `Tag with id ${tagId} successfully assigned to menu item id ${menuItemId}.` })
+})
+
+router.delete("/:menuItemId/tags/:tagId", async (req, res) => {
+    const tagId = req.params.tagId
+    const menuItemId = req.params.menuItemId
+
+    const validation = new Validator(
+        {
+            tagId,
+            menuItemId
+        },
+        assignTagToItemValidator
+    )
+
+    if (validation.fails())
+        return res.status(400).send({ data: validation.errors })
+
+    try {
+        const tag = await db.Tag.findOne({
+            where: {
+                id: tagId
+            }
+        })
+    
+        if (!tag)
+            return res.sendStatus(404)
+    
+        const menuItem = await db.MenuItem.findOne({
+            where: {
+                id: menuItemId
+            }
+        })
+    
+        if (!menuItem)
+            return res.sendStatus(404)
+    
+        // check if tag is already assigned
+        const tagAlreadyAssigned = await menuItem.hasTag(tag)
+    
+        if (!tagAlreadyAssigned){
+            return res.status(404).json({ data: `Tag with id ${tagId} is not assigned to this menu item therefore you cannot unassign it.`})
+        }
+        
+        await menuItem.removeTag(tag)
+    } catch (err) {
+        console.log(err)
+        return res.sendStatus(500)
+    }
+
+    return res.json({ data: `Tag with id ${tagId} successfully unassigned from menu item id ${menuItemId}.` })
 })
 
 module.exports = router

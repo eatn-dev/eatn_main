@@ -1,9 +1,7 @@
 const express = require("express")
 const morgan = require("morgan")
-const swaggerUI = require("swagger-ui-express")
-const swaggerJsDoc = require("swagger-jsdoc")
 const cors = require("cors")
-const sequelize = require("./sequelizeConnection")
+const sequelize = require("./sequelizeConnection").sequelize
 
 const app = express()
 
@@ -11,35 +9,15 @@ app.use(cors())
 app.use(morgan("dev"))
 app.use(express.json())
 
-const swaggerOptions = {
-    definition: {
-        openapi: "3.0.0",
-        info: {
-            title: "Eatn - Menu items API",
-            version: "1.0.0",
-            description: "Menu items API for Eatn application"
-        },
-        servers: [
-            {
-                url: "http://localhost:5000"
-            }
-        ],
-    },
-    apis: [
-        "./routers/MenuItemRouter.js"
-    ]
-}
-
-const specs = swaggerJsDoc(swaggerOptions)
-app.use("/swagger", swaggerUI.serve, swaggerUI.setup(specs))
-app.get("/swagger.json", (req, res) => {
-    res.setHeader("Content-Type", "application/json")
-    return res.send(specs)
-})
-
 const MenuItemRouter = require("./routers/MenuItemRouter")
+const TagRouter = require("./routers/TagRouter")
+const CategoryRouter = require("./routers/CategoryRouter")
+const SubcategoryRouter = require("./routers/SubcategoryRouter")
 
 app.use("/items", MenuItemRouter)
+app.use("/tags", TagRouter)
+app.use("/categories", CategoryRouter)
+app.use("/subcategories", SubcategoryRouter)
 
 sequelize.authenticate()
     .then(() => {

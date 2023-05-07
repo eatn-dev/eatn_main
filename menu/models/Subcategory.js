@@ -8,20 +8,26 @@ module.exports = (sequelize, DataTypes) => {
         },
         name: {
             type: DataTypes.STRING(255),
-            allowNull: false
+            allowNull: false,
+            unique: true
         }
     }, {
         underscored: true,
         tableName: "subcategories"
     })
-
+    
     Subcategory.associate = (models) => {
         Subcategory.belongsTo(models.Category, {
-            foreignKey: "category_id"
+            foreignKey: {
+                allowNull: false,
+                name: "categoryId"
+            },
+            as: "category"
         })
-
+    
         Subcategory.hasMany(models.MenuItem, {
-            foreignKey: "subcategory_id"
+            foreignKey: "subcategoryId",
+            as: "menu_items"
         })
     }
 

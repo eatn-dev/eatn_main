@@ -8,7 +8,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         name: {
             type: DataTypes.STRING(255),
-            allowNull: false
+            allowNull: false,
+            unique: true
         },
         description: {
             type: DataTypes.TEXT,
@@ -32,14 +33,16 @@ module.exports = (sequelize, DataTypes) => {
     
     MenuItem.associate = (models) => {
         MenuItem.belongsToMany(models.Tag, {
-            through: "menu_item_tag",
-            as: "tags",
-            foreignKey: "tag_id"
+            through: "menu_item_tags",
+            as: "tags"
         })
+        
         MenuItem.belongsTo(models.Subcategory, {
-            foreignKey:"subcategory_id"
+            foreignKey:"subcategoryId",
+            as: "subcategory"
         })
     }
-    
+
     return MenuItem
 }
+

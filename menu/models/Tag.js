@@ -1,5 +1,4 @@
 module.exports = (sequelize, DataTypes) => {
-
     const Tag = sequelize.define("Tag", {
         id: {
             type: DataTypes.INTEGER,
@@ -9,7 +8,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         name: {
             type: DataTypes.STRING(255),
-            allowNull: false
+            allowNull: false,
+            unique: true
         },
         bgColor: {
             type: DataTypes.STRING(7),
@@ -36,9 +36,8 @@ module.exports = (sequelize, DataTypes) => {
     
     Tag.associate = (models) => {
         Tag.belongsToMany(models.MenuItem, {
-            through: "menu_item_tag",
-            as: "items",
-            foreignKey: "menuitem_id"
+            through: "menu_item_tags",
+            as: "menu_items"
         })
     }
 
