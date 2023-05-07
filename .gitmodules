@@ -1,0 +1,11 @@
+[submodule "landing_page"]
+	path = .github
+	url = https://github.com/eatn-dev/.github
+
+[submodule "menu_api"]
+	path = users
+	url = https://github.com/eatn-dev/eatn_menu_api
+
+[submodule "cashier_web"]
+	path = cashier_frontend
+	url = https://github.com/eatn-dev/eatn_cashier_frontend
