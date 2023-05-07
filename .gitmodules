@@ -3,7 +3,7 @@
 	url = https://github.com/eatn-dev/.github
 
 [submodule "menu_api"]
-	path = users
+	path = menu
 	url = https://github.com/eatn-dev/eatn_menu_api
 
 [submodule "cashier_web"]
