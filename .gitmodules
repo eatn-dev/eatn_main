@@ -3,9 +3,15 @@
 	url = https://github.com/eatn-dev/.github
 
 [submodule "menu_api"]
-	path = ./menu
+	path = menu
 	url = https://github.com/eatn-dev/eatn_menu_api
 
 [submodule "cashier_web"]
-	path = ./cashier_frontend
+	path = cashier_frontend
 	url = https://github.com/eatn-dev/eatn_cashier_frontend
+[submodule "cashier_frontend"]
+	path = cashier_frontend
+	url = https://github.com/eatn-dev/eatn_cashier_frontend
+[submodule "menu"]
+	path = menu
+	url = https://github.com/eatn-dev/eatn_menu_api
