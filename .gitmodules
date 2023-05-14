@@ -15,3 +15,6 @@
 [submodule "menu"]
 	path = menu
 	url = https://github.com/eatn-dev/eatn_menu_api
+[submodule "documentation"]
+	path = documentation
+	url = https://github.com/eatn-dev/Documentation
