@@ -37,3 +37,4 @@ services:
             # - api_gateway
             - menu
         restart: always
+        env_file: cashier_frontend/.env
