@@ -24,6 +24,31 @@ services:
             POSTGRES_USER: root
             POSTGRES_PASSWORD: eatn
             POSTGRES_DB: menu
+
+    tables:
+        container_name: tables_api
+        build: ./tables
+        ports:
+            - "5001:5001"
+        volumes:
+            - ./tables:/usr/src/app
+            - /usr/src/app/node_modules
+        depends_on:
+            - tables_db
+        restart: always
+        environment:
+            DB_URI: "postgresql://root:eatn@tables_db:5432/tables"
+
+    tables_db:
+        container_name: tables_db
+        image: postgres
+        volumes:
+            - ./db_volumes/tables/:/var/lib/postgresql/data
+        restart: always
+        environment:
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: eatn
+            POSTGRES_DB: tables
     
     cashier_frontend:
         container_name: cashier_frontend
@@ -34,7 +59,7 @@ services:
             - ./cashier_frontend:/usr/src/app
             - /usr/src/app/node_modules
         depends_on:
-            # - api_gateway
             - menu
+            - tables
         restart: always
         env_file: cashier_frontend/.env
