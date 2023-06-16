@@ -1,5 +1,7 @@
 version: "3"
 services:
+    # backend
+
     menu:
         container_name: menu_api
         build: ./menu
@@ -49,6 +51,23 @@ services:
             POSTGRES_USER: root
             POSTGRES_PASSWORD: eatn
             POSTGRES_DB: tables
+
+    # reverse proxy
+
+    nginx:
+        container_name: eatn_proxy
+        image: nginx
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+        ports:
+            - "8000:80"
+        depends_on:
+            - menu
+            - tables
+        
+        restart: always
+
+    # frontend
     
     cashier_frontend:
         container_name: cashier_frontend
@@ -59,6 +78,7 @@ services:
             - ./cashier_frontend:/usr/src/app
             - /usr/src/app/node_modules
         depends_on:
+            - nginx
             - menu
             - tables
         restart: always
