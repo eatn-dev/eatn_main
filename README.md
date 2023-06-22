@@ -25,4 +25,72 @@ This project aims to be as relevant as maintainable as possible so in the future
 
 ## First user story
 
-As a customer, I want to interact with the menu.
+As a user, I want to interact with the menu.
+
+## Getting up and running
+
+To run the project, you will need docker and its compose installed (see [here](https://docs.docker.com/engine/install/)).
+
+Firstly you should clone the main repository [eatn_main](https://github.com/eatn-dev/eatn_main) in which one are all existing repositories.
+
+When you clone it, your file tree should look like this:
+
+```
+.
+├── cashier_frontend
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── README.md
+│   ├── sonar-project.properties
+│   ├── src/
+│   ├── static/
+│   ├── svelte.config.js
+│   ├── tests/
+│   └── vite.config.js
+├── docker-compose.yml
+├── documentation
+│   ├── docs/
+│   └── README.md
+├── menu
+│   ├── app.js
+│   ├── Dockerfile
+│   ├── index.js
+│   ├── jest.config.js
+│   ├── LICENSE
+│   ├── migrations/
+│   ├── models/
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── README.md
+│   ├── routers/
+│   ├── sequelizeConnection.js
+│   ├── sonar-project.properties
+│   └── tests/
+├── nginx
+│   └── nginx.conf
+├── package.json
+├── package-lock.json
+├── README.md
+└── tables
+    ├── app.js
+    ├── docker-compose.yml
+    ├── Dockerfile
+    ├── index.js
+    ├── LICENSE
+    ├── migrations/
+    ├── models/
+    ├── package.json
+    ├── package-lock.json
+    ├── README.md
+    ├── routers/
+    └── sequelizeConnection.js
+```
+
+Before you start the application, you should set two things.
+
+1. You should go to every folder you should run ```npm install``` to install the required dependencies for all services.
+2. You have to add `.env` file in `./cashier_frontend` and set ***GATEWAY_URL*** so application can work. Follow the instructions [here](https://github.com/eatn-dev/eatn_cashier_frontend). 
+<br>
+
+Go to the root folder and run `docker-compose up --build` in your terminal.
